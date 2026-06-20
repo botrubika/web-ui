@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "web-ui"
+version = "0.1.0"
+description = "ابزار تست پینگ و مانیتورینگ امنیت وب‌سایت‌ها با رابط کاربری وب"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Your Name", email = "your@email.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Security",
+    "Topic :: Internet :: WWW/HTTP :: Site Management",
+]
+dependencies = [
+    "flask>=2.0.0",
+    "requests>=2.28.0",
+    "ping3>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/botrubika/web-ui"
+Repository = "https://github.com/botrubika/web-ui.git"
+
+[tool.setuptools.packages.find]
+where = ["src"]
