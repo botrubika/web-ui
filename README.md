@@ -1,4 +1,4 @@
-# 🌐 Web-UI
+# 🌐 toolweb
 
 **A Python library for website ping testing and security monitoring with a built-in Web User Interface.**
 
