@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-UI - ابزار تست امنیت وب‌سایت</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-scan {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-scan:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-ping {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-ping:hover {
+            background: #45a049;
+        }
+        
+        .btn-http {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-http:hover {
+            background: #0b7dda;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            display: none;
+        }
+        
+        #result.show {
+            display: block;
+        }
+        
+        .result-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-right: 4px solid #667eea;
+        }
+        
+        .result-item h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .result-item .label {
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            color: #4CAF50;
+        }
+        
+        .status-error {
+            color: #f44336;
+        }
+        
+        .status-warning {
+            color: #ff9800;
+        }
+        
+        .security-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .security-item {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            .security-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Web-UI</h1>
+        <p class="subtitle">ابزار تست امنیت و در دسترس بودن وب‌سایت‌ها</p>
+        
+        <div class="input-group">
+            <input type="text" id="target" placeholder="مثال: google.com یا https://example.com" />
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-scan" onclick="fullScan()">🔍 اسکن کامل</button>
+            <button class="btn-ping" onclick="pingCheck()">📶 تست پینگ</button>
+            <button class="btn-http" onclick="httpCheck()">🔒 بررسی امنیت</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">در حال اسکن...</p>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').classList.remove('show');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+        }
+        
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+            
+            if (data.error) {
+                resultDiv.innerHTML = `<div class="result-item" style="border-right-color: #f44336;">
+                    <h3 style="color: #f44336;">❌ خطا</h3>
+                    <p>${data.error}</p>
+                </div>`;
+                resultDiv.classList.add('show');
+                return;
+            }
+            
+            let html = '';
+            
+            // نمایش اطلاعات کامل اسکن
+            if (data.ping && data.http && data.dns) {
+                html += `<h2>📊 نتیجه اسکن کامل برای: ${data.target}</h2>`;
+                html += `<p style="color: #666; margin-bottom: 15px;">🕐 ${data.timestamp}</p>`;
+                
+                // پینگ
+                html += `<div class="result-item">
+                    <h3>📶 تست پینگ</h3>
+                    <p><span class="label">وضعیت:</span> <span class="${data.ping.status === '✅ موفق' ? 'status-success' : 'status-error'}">${data.ping.status}</span></p>
+                    <p><span class="label">زمان پاسخ:</span> ${data.ping.response_time}</p>
+                    <p>${data.ping.message}</p>
+                </div>`;
+                
+                // HTTP
+                html += `<div class="result-item">
+                    <h3>🌐 وضعیت HTTP</h3>
+                    <p><span class="label">وضعیت:</span> <span class="${data.http.status === '✅ سالم' ? 'status-success' : 'status-warning'}">${data.http.status}</span></p>
+                    <p><span class="label">کد وضعیت:</span> ${data.http.status_code}</p>
+                    <p><span class="label">زمان پاسخ:</span> ${data.http.response_time}</p>
+                    <p><span class="label">سرور:</span> ${data.http.server}</p>
+                    <p><span class="label">امتیاز امنیت:</span> ⭐ ${data.http.security_score}</p>
+                    <div class="security-grid">
+                        ${Object.entries(data.http.security_headers).map(([key, value]) => `
+                            <div class="security-item">
+                                <strong>${key}</strong><br>
+                                <span style="font-size: 0.9em; ${value.includes('❌') ? 'color: #f44336;' : 'color: #4CAF50;'}">${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+                
+                // DNS
+                html += `<div class="result-item">
+                    <h3>🔄 بررسی DNS</h3>
+                    <p><span class="label">وضعیت:</span> <span class="${data.dns.status === '✅ موفق' ? 'status-success' : 'status-error'}">${data.dns.status}</span></p>
+                    <p><span class="label">آدرس IP:</span> ${data.dns.ip}</p>
+                    <p>${data.dns.message}</p>
+                </div>`;
+            }
+            
+            // نمایش فقط پینگ
+            else if (data.response_time !== undefined) {
+                html += `<div class="result-item">
+                    <h3>📶 نتیجه تست پینگ</h3>
+                    <p><span class="label">وضعیت:</span> <span class="${data.status === '✅ موفق' ? 'status-success' : 'status-error'}">${data.status}</span></p>
+                    <p><span class="label">زمان پاسخ:</span> ${data.response_time}</p>
+                    <p>${data.message}</p>
+                </div>`;
+            }
+            
+            // نمایش فقط HTTP
+            else if (data.status_code !== undefined) {
+                html += `<div class="result-item">
+                    <h3>🌐 نتیجه بررسی HTTP</h3>
+                    <p><span class="label">وضعیت:</span> <span class="${data.status === '✅ سالم' ? 'status-success' : 'status-warning'}">${data.status}</span></p>
+                    <p><span class="label">کد وضعیت:</span> ${data.status_code}</p>
+                    <p><span class="label">زمان پاسخ:</span> ${data.response_time}</p>
+                    <p><span class="label">سرور:</span> ${data.server}</p>
+                    ${data.security_score ? `<p><span class="label">امتیاز امنیت:</span> ⭐ ${data.security_score}</p>` : ''}
+                    ${data.security_headers ? `
+                        <div class="security-grid">
+                            ${Object.entries(data.security_headers).map(([key, value]) => `
+                                <div class="security-item">
+                                    <strong>${key}</strong><br>
+                                    <span style="font-size: 0.9em; ${value.includes('❌') ? 'color: #f44336;' : 'color: #4CAF50;'}">${value}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    <p>${data.message}</p>
+                </div>`;
+            }
+            
+            resultDiv.innerHTML = html;
+            resultDiv.classList.add('show');
+        }
+        
+        async function fullScan() {
+            const target = document.getElementById('target').value.trim();
+            if (!target) {
+                alert('لطفاً آدرس وب‌سایت را وارد کنید');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target})
+                });
+                const data = await response.json();
+                displayResult(data);
+            } catch (error) {
+                displayResult({error: 'خطا در ارتباط با سرور'});
+            }
+            hideLoading();
+        }
+        
+        async function pingCheck() {
+            const target = document.getElementById('target').value.trim();
+            if (!target) {
+                alert('لطفاً آدرس را وارد کنید');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/ping', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target})
+                });
+                const data = await response.json();
+                displayResult(data);
+            } catch (error) {
+                displayResult({error: 'خطا در ارتباط با سرور'});
+            }
+            hideLoading();
+        }
+        
+        async function httpCheck() {
+            const target = document.getElementById('target').value.trim();
+            if (!target) {
+                alert('لطفاً آدرس وب‌سایت را وارد کنید');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/http', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target})
+                });
+                const data = await response.json();
+                displayResult(data);
+            } catch (error) {
+                displayResult({error: 'خطا در ارتباط با سرور'});
+            }
+            hideLoading();
+        }
+        
+        // اجرا با کلید Enter
+        document.getElementById('target').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fullScan();
+            }
+        });
+    </script>
+</body>
+</html>
