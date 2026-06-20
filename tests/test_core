@@ -1,0 +1,17 @@
+import pytest
+from web_ui.core import WebMonitor
+
+def test_ping_success():
+    monitor = WebMonitor()
+    result = monitor.ping_host("google.com")
+    assert result["status"] in ["✅ موفق", "❌ ناموفق"]
+
+def test_http_check():
+    monitor = WebMonitor()
+    result = monitor.check_http_status("https://google.com")
+    assert "status" in result
+
+def test_security_headers():
+    monitor = WebMonitor()
+    result = monitor.check_http_status("https://google.com")
+    assert "security_headers" in result
